@@ -88,20 +88,97 @@ void imprimirArvoreComPilha(Nodo *n) {
   }
 }
 
+void add(Nodo *n, int valor) {
+  if(valor < n->valor) {
+    if(n->esq == NULL)
+      n->esq = create(valor);
+    else
+      add(n->esq, valor);
+  } else {
+    if(n->dir == NULL)
+      n->dir = create(valor);
+    else
+      add(n->dir, valor);
+  }
+}
+
+void rem(Nodo *n, int valor) {
+  Nodo *filho = n;
+  Nodo *pai;
+
+  do {
+    pai = filho;
+    if(valor < filho->valor)
+      filho = filho->esq;
+    else if(valor > filho->valor)
+      filho = filho->dir;
+  } while(filho != NULL && filho->valor != valor);
+
+  if(filho != NULL) {
+    if(filho->esq == NULL && filho->dir == NULL) { //CASO NULL-NULL (0 FILHOS)
+      if(pai->esq == filho) pai->esq = NULL;
+      if(pai->dir == filho) pai->dir = NULL;
+    }
+
+    if(filho->esq != NULL && filho->dir == NULL) { //CASO (1 FILHO A ESQUERDA)
+      if(pai->esq == filho) pai->esq = filho->esq;
+      if(pai->dir == filho) pai->dir = filho->esq;
+    }
+
+    if(filho->dir != NULL && filho->esq == NULL) { //CASO (1 FILHO A DIREITA)
+      if(pai->esq == filho) pai->esq = filho->dir;
+      if(pai->dir == filho) pai->dir = filho->dir;
+    }
+
+    if(filho->esq != NULL && filho->dir != NULL) { //CASO (2FILHOS)
+      if(filho->esq->dir == NULL) {
+        printf("passou\n");
+        filho->valor = filho->esq->valor;
+        filho->esq = filho->esq->esq;
+      } else {
+        Nodo *p = filho->esq;
+        Nodo *aux = p;
+        while(p->dir != NULL ){
+          aux = p;
+          p = p->dir;
+        }
+        aux ->dir = NULL;
+        filho->valor = p->valor;
+      }
+    }
+  }
+}
+
 int main(void) {
   
-  Nodo *n5 =  create(5);
-  Nodo *n2 =  create(2);
-  Nodo *n1 =  create(1);
-  Nodo *n8 =  create(8);
-  Nodo *n4 =  create(4);
+  Nodo *raiz;
 
-  n5->esq = n2;
-  n2->esq = n1;
-  n5->dir = n8;
-  n2->dir = n4;
+  raiz = create(8);
 
-  imprimirArvoreComPilha(n5);
+  add(raiz, 4);
+  add(raiz, 2);
+  add(raiz, 1);
+  add(raiz, 6);
+  add(raiz, 5);
+  add(raiz, 12);
+  add(raiz, 10);
+  add(raiz, 14);
+  add(raiz, 11);
+  add(raiz, 13);
+  add(raiz, 15);
+
+  rem(raiz, 4);
+
+
+  // Nodo *n2 =  create(2);
+  // Nodo *n1 =  create(1);
+  // Nodo *n8 =  create(8);
+  // Nodo *n4 =  create(4);
+
+  printf("Imprime RECURSIVO (PRE-ORDER)\n");
+  imprimir(raiz);
+  printf("Imprime com PILHA (PRE-ORDER)\n");
+  imprimirArvoreComPilha(raiz);
 
   return 0;
 }
